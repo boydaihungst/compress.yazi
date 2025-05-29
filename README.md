@@ -9,7 +9,7 @@
   - [Usage](#usage)
   <!--toc:end-->
 
-A Yazi plugin that compresses selected files to an archive. Supporting yazi versions 24.4.8 and up.
+A Yazi plugin that compresses selected files to an archive. Supporting yazi versions 25.5.28 and up.
 
 ## Supported file types
 
