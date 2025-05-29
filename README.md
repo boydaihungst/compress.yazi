@@ -36,6 +36,8 @@ A Yazi plugin that compresses selected files to an archive. Supporting yazi vers
 
 ```bash
 # with yazi plugin manager
+ya pkg add boydaihungst/compress
+# or
 ya pack -a boydaihungst/compress
 ```
 
