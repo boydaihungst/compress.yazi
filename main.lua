@@ -380,7 +380,7 @@ return {
 					}):align(ui.Align.LEFT),
 				})
 					:align(ui.Align.LEFT)
-					:wrap(ui.Wrap.YES),
+					:wrap(ui.Text.WRAP),
 				pos = { "center", w = 70, h = 10 },
 			})
 
