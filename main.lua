@@ -149,6 +149,8 @@ return {
 		-- Get input
 		local output_name, event_name = ya.input({
 			title = "Create archive:",
+			pos = { "top-center", y = 3, w = 40 },
+			-- TODO: remove this after next yazi released
 			position = { "top-center", y = 3, w = 40 },
 		})
 
@@ -159,6 +161,8 @@ return {
 			decrypt_password, input_pw_event = ya.input({
 				title = "Enter password:",
 				obscure = true,
+				pos = { "top-center", y = 3, w = 40 },
+				-- TODO: remove this after next yazi released
 				position = { "top-center", y = 3, w = 40 },
 			})
 			if input_pw_event ~= 1 then
@@ -370,6 +374,18 @@ return {
 		if #list_existed_files > 0 then
 			overwrite_answer = ya.confirm({
 				title = ui.Line("Create Archive File"),
+				body = ui.Text({
+					ui.Line(""),
+					ui.Line("The following file is existed, overwrite?"):fg("yellow"),
+					ui.Line(""),
+					ui.Line({
+						ui.Span(" "),
+						table.unpack(list_existed_files),
+					}):align(ui.Align.LEFT),
+				})
+					:align(ui.Align.LEFT)
+					:wrap(ui.Wrap.YES),
+				-- TODO: remove this after next yazi released
 				content = ui.Text({
 					ui.Line(""),
 					ui.Line("The following file is existed, overwrite?"):fg("yellow"),
