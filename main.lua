@@ -187,7 +187,7 @@ return {
 
 		local cwd = get_cwd()
 		-- TODO: remove cwd.is_search after next yazi released
-		if (cwd.spec and cwd.spec.is_search) or cwd.is_search then
+		if (cwd.spec and cwd.spec.is_search) or (not cwd.spec and cwd.is_search) then
 			cwd = cwd.path
 		end
 
