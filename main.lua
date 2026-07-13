@@ -178,7 +178,7 @@ return {
 		end
 
 		local cwd = get_cwd()
-		if cwd.is_search then
+		if cwd.is_search or cwd.spec.is_search then
 			cwd = cwd.path
 		end
 
