@@ -1,4 +1,4 @@
---- @since 25.5.31
+--- @since 26.5.6
 
 local supported_encryption = {
 	"%.zip$",
@@ -52,12 +52,8 @@ local selected_files = ya.sync(function()
 	for _, f in pairs(tab.selected) do
 		-- TODO: remove this after next yazi released
 		local u = f.url or f
-		local is_virtual = (u.spec and u.spec.is_virtual) or (not u.spec and u.scheme.is_virtual)
-		local u_real = is_virtual
-				and Url(((u.spec and u.spec.cache) or (not u.spec and u.scheme.cache)) .. tostring(u.path))
-			or u.path
-			or u
-		raw_urls[#raw_urls + 1] = { path = tostring(u_real), is_virtual = is_virtual }
+		local u_real = u.path or u
+		raw_urls[#raw_urls + 1] = tostring(u_real)
 	end
 	return raw_urls
 end)
@@ -66,18 +62,8 @@ local selected_or_hovered_files = ya.sync(function()
 	local tab, raw_urls = cx.active, selected_files()
 	if #raw_urls == 0 and tab.current.hovered then
 		local hovered_url = tab.current.hovered.url
-		local is_virtual = (hovered_url.spec and hovered_url.spec.is_virtual)
-			or (not hovered_url.spec and hovered_url.scheme.is_virtual)
-		hovered_url = is_virtual
-				and Url(
-					(
-						(hovered_url.spec and hovered_url.spec.cache)
-						or (not hovered_url.spec and hovered_url.scheme.cache)
-					) .. tostring(hovered_url.path)
-				)
-			or hovered_url.path
-			or hovered_url
-		raw_urls[1] = { path = tostring(hovered_url), is_virtual = is_virtual }
+		hovered_url = hovered_url.path or hovered_url
+		raw_urls[1] = tostring(hovered_url)
 	end
 	return raw_urls
 end)
@@ -87,7 +73,7 @@ local selected_or_hovered = function()
 	local files = selected_or_hovered_files()
 
 	for _, file in ipairs(files) do
-		local url = Url(file.path)
+		local url = Url(file)
 		local cha, err = fs.cha(url)
 
 		if cha then
@@ -97,11 +83,7 @@ local selected_or_hovered = function()
 			end
 			table.insert(result[parent_path], quote(url.name))
 		else
-			if file.is_virtual then
-				notify_error(string.format("Remote VFS files need to be downloaded first: %s", file.path), "error")
-			else
-				notify_error(string.format("Failed to get metadata for %s: %s", file.path, err), "error")
-			end
+			notify_error(string.format("Failed to get metadata for %s: %s", file.path, err), "error")
 			return
 		end
 	end
@@ -154,8 +136,6 @@ return {
 		local output_name, event_name = ya.input({
 			title = "Create archive:",
 			pos = { "top-center", y = 3, w = 40 },
-			-- TODO: remove this after next yazi released
-			position = { "top-center", y = 3, w = 40 },
 		})
 
 		if event_name ~= 1 then
@@ -166,8 +146,6 @@ return {
 				title = "Enter password:",
 				obscure = true,
 				pos = { "top-center", y = 3, w = 40 },
-				-- TODO: remove this after next yazi released
-				position = { "top-center", y = 3, w = 40 },
 			})
 			if input_pw_event ~= 1 then
 				return
@@ -200,10 +178,13 @@ return {
 
 		local output_path_cache = output_path_is_virtual
 				and Url(
-					(
-						(output_url_maybe_vfs.spec and output_url_maybe_vfs.spec.cache)
-						or (not output_url_maybe_vfs.spec and output_url_maybe_vfs.scheme.cache)
-					) .. tostring(cwd.path .. path_separator .. output_name)
+					(output_url_maybe_vfs.spec and fs.file(Url(tostring(cwd))).path:join(output_name))
+						or (
+							not output_url_maybe_vfs.spec
+							and (
+								output_url_maybe_vfs.scheme.cache .. tostring(cwd.path .. path_separator .. output_name)
+							)
+						)
 				)
 			or output_url_maybe_vfs
 		local output_path_cha, _ = fs.cha(output_path_cache)
@@ -412,21 +393,6 @@ return {
 					:align(ui.Align.LEFT)
 					:wrap(ui.Wrap.YES),
 				pos = { "center", w = 70, h = 10 },
-				-- TODO: remove this after next yazi released
-				content = ui.Text({
-					ui.Line(""),
-					ui.Line(
-						"The following file is existed, overwrite?"
-							.. (output_path_is_virtual and " (included cached file)" or "")
-					):fg("yellow"),
-					ui.Line(""),
-					ui.Line({
-						ui.Span(" "),
-						table.unpack(list_existed_files),
-					}):align(ui.Align.LEFT),
-				})
-					:align(ui.Align.LEFT)
-					:wrap(ui.Wrap.YES),
 			})
 
 			if not overwrite_answer then
